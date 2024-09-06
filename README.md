@@ -1,32 +1,45 @@
-****Go-Gin API Project
-**This project is a Go-based web application built using the Gin web framework. It integrates the following tools and libraries:
+# Getting Started
 
-GORM: ORM for PostgreSQL database interaction.
-Google Wire: Dependency injection.
-Air: Live reloading during development.
+This project demonstrates a basic setup of a RESTful API with user management using Go, Gin, GORM, PostgreSQL, and Google Wire. It supports basic CRUD operations.
 
-**Table of Contents
-**Getting Started
-Prerequisites
-Project Structure
-Installation
-Running the Project
-Using Air for Hot Reloading
-Dependency Injection with Google Wire
 
-**Getting Started
-**This project demonstrates a basic setup of a RESTful API with user management using Go, Gin, GORM, PostgreSQL, and Google Wire. It supports basic CRUD operations.
+## 1. Installation
 
-**Prerequisites**
-Make sure you have the following tools installed on your machine:
+Use below command to install and move to root directory
 
-Go (version 1.17+)
-PostgreSQL (version 12+)
-Air for hot reloading
-Google Wire for dependency injection
+```bash
+git clone https://github.com/Abhishek-Shukla1989/Gogin-boiler.git
+cd gogin-boiler
+```
 
-Installation
-Step 1: Clone the Repository
-git clone https://github.com/yourusername/go-gin-api.git
-cd go-gin-api
+## 2. Install dependency
+```bash
+go mod tidy
+```
+## 3. Make sure Postgresql installed and running
 
+```bash
+createdb restdb
+```
+## 4. Setup env variable
+
+```bash
+db_dsn = your_database_url
+POST = add your port i.e 8000/9000
+```
+
+## 2. Run the project
+```bash
+air // this will run the project 
+```
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first
+to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
