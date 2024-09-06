@@ -1,0 +1,66 @@
+# Binaries
+*.exe
+*.dll
+*.so
+*.dylib
+*.out
+
+# Build directory
+/build/
+bin/
+tmp/
+
+# IDE/editor specific
+.idea/
+.vscode/
+*.swp
+
+# Go dependency modules
+/go.mod
+/go.sum
+
+# Vendor directory (when using Go Modules)
+vendor/
+
+# Output of the Go build command
+*.log
+*.test
+*.prof
+*.cov
+*.out
+
+# Compiled object files
+*.o
+*.a
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Environment files
+.env
+
+# Go coverage tools
+*.coverprofile
+*.cover.out
+
+# Docker files
+docker-compose.override.yml
+Dockerfile
+
+# Go specific files created during tests
+testdata/
+
+# Dependency injection tool (Google Wire)
+wire_gen.go
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+/logs/
+
+# Air hot-reload configuration
+.air
