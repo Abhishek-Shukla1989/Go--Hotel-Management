@@ -17,7 +17,8 @@ func Init(init *config.Initialization) *gin.Engine {
 		user := api.Group("/user")
 		//user.GET("", init.UserCtrl.GetAllUserData)
 		user.POST("", init.UserCtrl.AddUserData)
-		//user.GET("/:userID", init.UserCtrl.GetUserById)
+		user.GET("/:userID", init.UserCtrl.GetUserById)
+		user.PUT("/:userID", init.UserCtrl.UpdateUserData)
 		//user.PUT("/:userID", init.UserCtrl.UpdateUserData)
 		//user.DELETE("/:userID", init.UserCtrl.DeleteUser)
 	}

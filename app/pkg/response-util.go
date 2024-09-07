@@ -10,7 +10,7 @@ func Null() interface{} {
 }
 func BuildResponse[T any](responseStatus constant.ResponseStatus, data T) dto.ResponseApi[T] {
 
-	return BuildResponse_(responseStatus.GetResponseStatus(), responseStatus.GetResponseMessage(), data)
+	return BuildResponse_(responseStatus.GetResponseStatus(), responseStatus.GetResponseMessage(""), data)
 }
 func BuildResponse_[T any](status string, message string, data T) dto.ResponseApi[T] {
 

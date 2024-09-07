@@ -7,6 +7,8 @@ import (
 	"code/app/repository"
 	"net/http"
 
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
@@ -14,8 +16,9 @@ import (
 
 type UserService interface {
 	//GetAllUser(c *gin.Context)
-	//GetUserById(c *gin.Context)
+	GetUserById(c *gin.Context)
 	AddUserData(c *gin.Context)
+	UpdateUserData(c *gin.Context)
 	//UpdateUserData(c *gin.Context)
 	//DeleteUser(c *gin.Context)
 }
@@ -56,20 +59,20 @@ type UserServiceImpl struct {
 // 	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, data))
 // }
 
-// func (u UserServiceImpl) GetUserById(c *gin.Context) {
-// 	defer pkg.PanicHandler(c)
+func (u UserServiceImpl) GetUserById(c *gin.Context) {
+	defer pkg.PanicHandler(c)
 
-// 	log.Info("start to execute program get user by id")
-// 	userID, _ := strconv.Atoi(c.Param("userID"))
+	log.Info("start to execute program get user by id")
+	userID, _ := strconv.Atoi(c.Param("userID"))
 
-// 	data, err := u.userRepository.FindUserById(userID)
-// 	if err != nil {
-// 		log.Error("Happened error when get data from database. Error", err)
-// 		pkg.PanicException(constant.DataNotFound)
-// 	}
+	data, err := u.userRepository.FindUserById(userID)
+	if err != nil {
+		log.Error("Happened error when get data from database. Error", err)
+		pkg.PanicException(constant.DataNotFound, "")
+	}
 
-// 	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, data))
-// }
+	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, data))
+}
 
 func (u UserServiceImpl) AddUserData(c *gin.Context) {
 	defer pkg.PanicHandler(c)
@@ -78,17 +81,57 @@ func (u UserServiceImpl) AddUserData(c *gin.Context) {
 	var request dto.CreateUserDTO
 	if err := c.ShouldBindJSON(&request); err != nil {
 		log.Error("Happened error when mapping request from FE. Error", err)
-		log.Printf("invalid request value is %d", constant.InvalidRequest)
-		pkg.PanicException(constant.InvalidRequest)
+		// log.Printf("invalid request value is %d", constant.InvalidRequest)
+		pkg.PanicException(constant.InvalidRequest, "")
 	}
 
 	hash, _ := bcrypt.GenerateFromPassword([]byte(request.Password), 15)
 	request.Password = string(hash)
 
+	// Check if email already exist and send proper response
+
 	data, err := u.userRepository.Save(&request)
 	if err != nil {
 		log.Error("Happened error when saving data to database. Error", err)
-		pkg.PanicException(constant.UnknownError)
+		pkg.PanicException(constant.UnknownError, "")
+	}
+	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, data))
+}
+
+func (u UserServiceImpl) GetAllUser(c *gin.Context) {
+
+	defer pkg.PanicHandler(c)
+	log.Info("Start execute get all use data")
+
+	// Need to get page and count
+	// get data as per page and count by DB
+
+}
+
+func (u UserServiceImpl) UpdateUserData(c *gin.Context) {
+	defer pkg.PanicHandler(c)
+	userID, err := strconv.Atoi(c.Param("userID"))
+	if err != nil {
+		pkg.PanicException(constant.InvalidRequest, "")
+	}
+
+	user, err := u.userRepository.FindUserById(userID)
+	if err != nil {
+		log.Error("Happened error when get data from database. Error", err)
+		pkg.PanicException(constant.DataNotFound, "")
+	}
+
+	var request dto.UpdateUserDTO
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		log.Error("Error binding json with data", err)
+		pkg.PanicException(constant.InvalidRequest, "")
+	}
+
+	data, err := u.userRepository.UpdateUserData(user, &request)
+	if err != nil {
+		log.Error("Error during adding data to DB", err)
+		pkg.PanicException(constant.UnknownError, "")
 	}
 	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, data))
 }
