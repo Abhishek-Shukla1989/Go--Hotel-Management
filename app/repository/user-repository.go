@@ -6,6 +6,7 @@ import (
 	"code/app/domain/dto"
 	"code/app/pkg"
 	"log"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -65,6 +66,14 @@ func (u UserRepositoryImpl) Save(createUserDTO *dto.CreateUserDTO) (dao.User, er
 	user.Age = createUserDTO.Age
 	user.Address = createUserDTO.Address
 	//user.Birthday = createUserDTO.Birthday
+	if createUserDTO.Birthday != nil {
+
+		birthday, err := time.Parse("2006-01-02", *createUserDTO.Birthday)
+		if err != nil {
+			return dao.User{}, err
+		}
+		user.Birthday = &birthday
+	}
 
 	// // Convert the string Birthday to time.Time (if provided)
 	// if createUserDTO.Birthday != nil {

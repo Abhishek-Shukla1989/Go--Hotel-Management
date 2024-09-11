@@ -12,7 +12,7 @@ type User struct {
 	Name     string `gorm:"not null"`
 	Email    string `gorm:"unique;not null"`
 	Password string `gorm:"not null"`
-	Age      *uint
+	Age      *uint   
 	Address  *string
 	Birthday *time.Time
 }

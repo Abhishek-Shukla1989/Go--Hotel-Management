@@ -21,6 +21,13 @@ func Init(init *config.Initialization) *gin.Engine {
 		user.PUT("/:userID", init.UserCtrl.UpdateUserData)
 		//user.PUT("/:userID", init.UserCtrl.UpdateUserData)
 		//user.DELETE("/:userID", init.UserCtrl.DeleteUser)
+
+		auth := api.Group("/auth")
+		auth.POST("/login", init.AuthCtrl.Login)
+		auth.POST("/forget", init.AuthCtrl.Forget)
+
+		//auth.GET("/:signup", init.A.GetUserById)
+		//auth.PUT("/:userID", init.UserCtrl.UpdateUserData)
 	}
 
 	return router
