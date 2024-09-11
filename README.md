@@ -8,8 +8,8 @@ This project demonstrates a basic setup of a RESTful API with user management us
 Use below command to install and move to root directory
 
 ```bash
-git clone https://github.com/Abhishek-Shukla1989/Gogin-boiler.git
-cd gogin-boiler
+git clone https://github.com/Abhishek-Shukla1989/Go--Hotel-Management.git
+cd go--hotel-management
 ```
 
 ## 2. Install dependency
