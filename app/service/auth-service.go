@@ -65,7 +65,13 @@ func (a AuthServiceImpl) ForgetService(c *gin.Context) {
 		pkg.PanicException(constant.UnknownError, "")
 	}
 
-	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, data))
+	success := utils.SendEmail(request.Email, "test123")
+	if success {
+		c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, data))
+
+	} else {
+		pkg.PanicException(constant.UnknownError, "")
+	}
 
 }
 func AuthServiceInit(authRepository repository.AuthRepository) *AuthServiceImpl {

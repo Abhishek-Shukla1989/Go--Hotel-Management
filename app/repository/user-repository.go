@@ -12,29 +12,39 @@ import (
 )
 
 type UserRepository interface {
-	//FindAllUser() ([]dao.User, error)
+	FindAllUser(oage int, offset int, search string, filter map[string][]int) ([]dao.User, error)
 	FindUserById(id int) (dao.User, error)
 	Save(user *dto.CreateUserDTO) (dao.User, error)
 	UpdateUserData(dao.User, *dto.UpdateUserDTO) (dao.User, error)
-
-	//DeleteUserById(id int) error
+	DeleteUserbyId(id int) int64
 }
 
 type UserRepositoryImpl struct {
 	db *gorm.DB
 }
 
-// func (u UserRepositoryImpl) FindAllUser() ([]dao.User, error) {
-// 	var users []dao.User
+func (u UserRepositoryImpl) FindAllUser(limit int, offset int, search string, filter map[string][]int) ([]dao.User, error) {
+	var users []dao.User
+	// fmt.Printf("page is %d\n", limit)
+	// fmt.Printf("offset is %d\n", offset)
+	// fmt.Printf("Filter is %q\n", filter)
+	// fmt.Printf("Filter is %s\n", search)
+	query := u.db
+	if search != "" {
 
-// 	var err = u.db.Preload("Role").Find(&users).Error
-// 	if err != nil {
-// 		log.Error("Got an error finding all couples. Error: ", err)
-// 		return nil, err
-// 	}
+		query = query.Where("Name ILIKE  ?", search+"%").Or("Address ILIKE ?", "%"+search+"%")
+	}
+	// Check if age is provided
+	if len(filter) > 0 && len(filter["age"]) > 0 {
+		query = query.Where("age in  ?", filter["age"])
+	}
+	// We can add more fields in this way
+	if err := query.Offset(offset).Limit(limit).Find(&users).Error; err != nil {
+		return nil, err
+	}
 
-// 	return users, nil
-// }
+	return users, nil
+}
 
 func (u UserRepositoryImpl) FindUserById(id int) (dao.User, error) {
 
@@ -106,14 +116,13 @@ func (u UserRepositoryImpl) UpdateUserData(user dao.User, userData *dto.UpdateUs
 	return user, nil
 }
 
-// func (u UserRepositoryImpl) DeleteUserById(id int) error {
-// 	err := u.db.Delete(&dao.User{}, id).Error
-// 	if err != nil {
-// 		log.Error("Got an error when delete user. Error: ", err)
-// 		return err
-// 	}
-// 	return nil
-// }
+func (u UserRepositoryImpl) DeleteUserbyId(id int) int64 {
+
+	result := u.db.Delete(&dao.User{}, id)
+	// fmt.Println(result.RowsAffected)
+	rowsAffected := result.RowsAffected
+	return rowsAffected
+}
 
 func UserRepositoryInit(db *gorm.DB) *UserRepositoryImpl {
 	db.AutoMigrate(&dao.User{})

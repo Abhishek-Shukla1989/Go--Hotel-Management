@@ -6,6 +6,7 @@ import (
 	"code/app/pkg"
 	"code/app/repository"
 	"net/http"
+	"strings"
 
 	"strconv"
 
@@ -15,49 +16,17 @@ import (
 )
 
 type UserService interface {
-	//GetAllUser(c *gin.Context)
+	GetAllUser(c *gin.Context)
 	GetUserById(c *gin.Context)
 	AddUserData(c *gin.Context)
 	UpdateUserData(c *gin.Context)
 	//UpdateUserData(c *gin.Context)
-	//DeleteUser(c *gin.Context)
+	DeleteUser(c *gin.Context)
 }
 
 type UserServiceImpl struct {
 	userRepository repository.UserRepository
 }
-
-// func (u UserServiceImpl) UpdateUserData(c *gin.Context) {
-// 	defer pkg.PanicHandler(c)
-
-// 	log.Info("start to execute program update user data by id")
-// 	userID, _ := strconv.Atoi(c.Param("userID"))
-
-// 	var request dao.User
-// 	if err := c.ShouldBindJSON(&request); err != nil {
-// 		log.Error("Happened error when mapping request from FE. Error", err)
-// 		pkg.PanicException(constant.InvalidRequest)
-// 	}
-
-// 	data, err := u.userRepository.FindUserById(userID)
-// 	if err != nil {
-// 		log.Error("Happened error when get data from database. Error", err)
-// 		pkg.PanicException(constant.DataNotFound)
-// 	}
-
-// 	data.RoleID = request.RoleID
-// 	data.Email = request.Email
-// 	data.Name = request.Password
-// 	data.Status = request.Status
-// 	u.userRepository.Save(&data)
-
-// 	if err != nil {
-// 		log.Error("Happened error when updating data to database. Error", err)
-// 		pkg.PanicException(constant.UnknownError)
-// 	}
-
-// 	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, data))
-// }
 
 func (u UserServiceImpl) GetUserById(c *gin.Context) {
 	defer pkg.PanicHandler(c)
@@ -95,15 +64,53 @@ func (u UserServiceImpl) AddUserData(c *gin.Context) {
 		log.Error("Happened error when saving data to database. Error", err)
 		pkg.PanicException(constant.UnknownError, "")
 	}
+
 	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, data))
 }
 
 func (u UserServiceImpl) GetAllUser(c *gin.Context) {
 
 	defer pkg.PanicHandler(c)
-	log.Info("Start execute get all use data")
 
 	// Need to get page and count
+
+	page, err := strconv.Atoi(c.Query("page"))
+	if err != nil {
+		pkg.PanicException(constant.InvalidRequest, "")
+
+	}
+	limit, err := strconv.Atoi(c.Query("limit"))
+	if err != nil || limit < 1 {
+		pkg.PanicException(constant.InvalidRequest, "")
+
+	}
+	offset := (page - 1) * limit
+
+	//Need to get search key
+	//Need to get filter key
+	search := c.Query("search")
+	filter := make(map[string][]int)
+	age_str := strings.Split(c.Query("age"), ",")
+
+	var age_int []int
+
+	for _, age := range age_str {
+
+		age_unit, err := strconv.Atoi(age)
+		if err != nil {
+			pkg.PanicException(constant.InvalidRequest, "")
+		}
+		age_int = append(age_int, age_unit)
+	}
+	filter["age"] = age_int
+
+	users, err := u.userRepository.FindAllUser(limit, offset, search, filter)
+	if err != nil {
+		log.Error("Error during adding data to DB", err)
+		pkg.PanicException(constant.UnknownError, "")
+	}
+	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, users))
+
 	// get data as per page and count by DB
 
 }
@@ -136,35 +143,24 @@ func (u UserServiceImpl) UpdateUserData(c *gin.Context) {
 	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, data))
 }
 
-// func (u UserServiceImpl) GetAllUser(c *gin.Context) {
-// 	defer pkg.PanicHandler(c)
+func (u UserServiceImpl) DeleteUser(c *gin.Context) {
+	defer pkg.PanicHandler(c)
+	userID, err := strconv.Atoi(c.Param("userID"))
 
-// 	log.Info("start to execute get all data user")
+	if err != nil {
+		pkg.PanicException(constant.InvalidRequest, "")
+	}
 
-// 	data, err := u.userRepository.FindAllUser()
-// 	if err != nil {
-// 		log.Error("Happened Error when find all user data. Error: ", err)
-// 		pkg.PanicException(constant.UnknownError)
-// 	}
+	rows := u.userRepository.DeleteUserbyId(userID)
 
-// 	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, data))
-// }
+	if rows > 0 {
+		c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, ""))
 
-// func (u UserServiceImpl) DeleteUser(c *gin.Context) {
-// 	defer pkg.PanicHandler(c)
+	} else {
+		pkg.PanicException(constant.DataNotFound, "")
+	}
 
-// 	log.Info("start to execute delete data user by id")
-// 	userID, _ := strconv.Atoi(c.Param("userID"))
-
-// 	err := u.userRepository.DeleteUserById(userID)
-// 	if err != nil {
-// 		log.Error("Happened Error when try delete data user from DB. Error:", err)
-// 		pkg.PanicException(constant.UnknownError)
-// 	}
-
-// 	c.JSON(http.StatusOK, pkg.BuildResponse(constant.Success, pkg.Null()))
-// }
-
+}
 func UserServiceInit(userRepository repository.UserRepository) *UserServiceImpl {
 	return &UserServiceImpl{
 		userRepository: userRepository,

@@ -15,12 +15,12 @@ func Init(init *config.Initialization) *gin.Engine {
 	api := router.Group("/api")
 	{
 		user := api.Group("/user")
-		//user.GET("", init.UserCtrl.GetAllUserData)
+		user.GET("", init.UserCtrl.GetAllUserData)
 		user.POST("", init.UserCtrl.AddUserData)
 		user.GET("/:userID", init.UserCtrl.GetUserById)
 		user.PUT("/:userID", init.UserCtrl.UpdateUserData)
 		//user.PUT("/:userID", init.UserCtrl.UpdateUserData)
-		//user.DELETE("/:userID", init.UserCtrl.DeleteUser)
+		user.DELETE("/:userID", init.UserCtrl.DeleteUser)
 
 		auth := api.Group("/auth")
 		auth.POST("/login", init.AuthCtrl.Login)

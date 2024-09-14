@@ -39,14 +39,24 @@ func (a AuthRepositoryImpl) Login(loginDTO *dto.LoginUserDTO) (dao.User, error) 
 func (a AuthRepositoryImpl) ForgetPassword(loginDTO *dto.ForgetPassword) (bool, error) {
 
 	var existigUser dao.User
-
-	if err := a.db.Where("email = ?", loginDTO.Email).First(&existigUser).Error; err != nil {
+	var err error
+	if err = a.db.Where("email = ?", loginDTO.Email).First(&existigUser).Error; err != nil {
 		pkg.PanicException(constant.DataNotFound, "")
 
 	}
-	// match concept of sending email to this account and return error
+	hash, _ := bcrypt.GenerateFromPassword([]byte("test123"), 15)
 
-	return true, nil
+	newPass := string(hash)
+
+	existigUser.Password = newPass
+
+	if err = a.db.Save(&existigUser).Error; err != nil {
+		return true, nil
+	} else {
+		return false, err
+	}
+
+	// match concept of sending email to this account and return error
 
 }
 
